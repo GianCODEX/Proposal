@@ -1,88 +1,117 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
- 
- 
-void studentChecker(bool isStudent, const char *name);
- 
-int main(){
+
+const char* studentChecker(bool isStudent) {
+    return isStudent ? "Enrolled in NU Lipa" : "Not enrolled in NU Lipa";
+}
+
+int main() {
     FILE *fptr;
     bool isStudent = false;
-    char choiceYorN[5] = "";
-    char name[50] = "";
-    char location[50] = "";
+    char choiceYorN[10];
+    char surname_Name[40];
+    char first_Name[40];
+    char middle_Name[40];
+    char location[50];
+    char contactNum[30];
     int age = 0;
     int choice;
-
+    
     printf("Create a Student Account... \n");
     printf("1. Continue\n");
     printf("2. Exit\n");
     printf("\nEnter your choice: ");
-    scanf(" %d", &choice);
+    scanf("%d", &choice);
     getchar(); 
-    switch(choice){
+    
+    switch (choice) {
         case 1:
-            printf("Enter your full name: ");
-            fgets(name, sizeof(name), stdin);
-            if (name[strlen(name) - 1] == '\n') name[strlen(name) - 1] = '\0';
-            while(strlen(name) < 10){
-                printf("(It must have 10+ characters)\n"); 
-                printf("Enter your full name: ");
-                fgets(name, sizeof(name), stdin);
-                if (name[strlen(name) - 1] == '\n') name[strlen(name) - 1] = '\0';
-            }
-            printf("Enter your age: ");
+            do { // must have 10+ CHARACTERS
+                printf("Enter your surname: ");
+                fgets(surname_Name, sizeof(surname_Name), stdin);
+                surname_Name[strcspn(surname_Name, "\n")] = '\0'; 
+            } while (strlen(surname_Name) < 0);
+            
+            do{
+                printf("Enter your first name: ");
+                fgets(first_Name, sizeof(first_Name), stdin);
+                first_Name[strcspn(first_Name, "\n")] = '\0'; 
+            } while (strlen(first_Name) < 0);
+            
+            do{
+                printf("Enter your middle name: ");
+                fgets(middle_Name, sizeof(middle_Name), stdin);
+                middle_Name[strcspn(middle_Name, "\n")] = '\0'; 
+            } while (strlen(middle_Name) < 0);
+            
+            printf("Enter your age: "); // Enter the user's age
             scanf("%d", &age);
             getchar(); 
-            if (age<=17){
+            
+            if (age <= 17) {
                 printf("You must consult with your parents to use this feature... Continue if present\n");
                 return 1;
             }
-            printf("Please type your address: ");
-            fgets(location, sizeof(location), stdin);
-            if (location[strlen(location) - 1] == '\n') location[strlen(location) - 1] = '\0';
             
-            printf("Are you a Student of NU Lipa: (YES or NO)");
+            printf("Please type your address: "); // Enter the user's add
+            fgets(location, sizeof(location), stdin);
+            location[strcspn(location, "\n")] = '\0';
+            
+            printf("Contact Info:  ex:(+63 0123 454 7327)"); // Enter the user's contact
+            fgets(contactNum, sizeof(contactNum), stdin);
+            
+            printf("Are you a Student of NU Lipa: (YES or NO): "); 
             fgets(choiceYorN, sizeof(choiceYorN), stdin);
             choiceYorN[strcspn(choiceYorN, "\n")] = '\0';
+
             if (strcasecmp(choiceYorN, "yes") == 0) {
-            isStudent = true;
+                isStudent = true;
             }
             break;
             
         case 2:
             printf("You have successfully exited.\n");
             return 0;
+            
         default:
             printf("Invalid choice.\n");
             return 1;
     }
-
-    printf("=================================\n");
-    printf("%s\n", name);
-    printf("%d\n", age);
-    printf("%s\n", location);
-    studentChecker(isStudent, name);
     
-    fptr = fopen("C:/Users/ACER/Desktop/userdata.txt", "w");
+    char fullName[130];
+    snprintf(fullName, sizeof(fullName), "%s, %s %s", surname_Name, first_Name, middle_Name);
+     
+    printf("=================================\n");
+    printf("Name     : %s\n", fullName);
+    printf("Age      : %d\n", age);
+    printf("Location : %s\n", location);
+    printf("Contact  : %s\n", contactNum);
+    printf("Status   : %s\n", studentChecker(isStudent));
+    
+    char filename[100];
+    snprintf(filename, sizeof(filename), "C:/Users/GianRossBCorpuz/Desktop/userdata_%s.txt", fullName);
+    
+    fptr = fopen(filename, "w");
     if (fptr == NULL) {
         printf("Error opening file!\n");
         return 1;
     }
     
-
-    fprintf(fptr, "Name     : %s\nAge     : %d\nLocation     : %s", name, age, location);
+    fprintf(fptr, "Name     : %s\n", fullName);
+    fprintf(fptr, "Age      : %d\n", age);
+    fprintf(fptr, "Location : %s\n", location);
+    fprintf(fptr, "Contact  : %s\n", contactNum);
+    fprintf(fptr, "Status   : %s\n", studentChecker(isStudent));
     
     fclose(fptr);
     printf("Text has been saved to userdata.txt\n");
-    return 0;
-
-}
-
-void studentChecker(bool isStudent, const char *name) {
-    if (isStudent) {
-        printf("%s is a student of NU Lipa\n", name);
-    } else {
-        printf("%s is not enrolled in NU Lipa\n", name);
+    
+    char line[100];
+    printf("\nReading saved data:\n");
+    while (fgets(line, sizeof(line), fptr)) {
+    printf("%s", line);
     }
+    
+    return 0;
 }
