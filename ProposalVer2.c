@@ -71,7 +71,7 @@ int main() {
             
             printf("Enter your email: ");
             fgets(email_User, sizeof(email_User), stdin);
-            email_User[strcspn(location, "\n")] = '\0';
+            email_User[strcspn(email_User, "\n")] = '\0';
             
             printf("Please type your address: "); // Enter the user's add
             fgets(location, sizeof(location), stdin);
